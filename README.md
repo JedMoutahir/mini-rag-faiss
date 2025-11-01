@@ -24,3 +24,40 @@ python query.py --store ./store --k 5 --question "What is the warranty period?"
 
 # 3) (Optional) Print sources
 python query.py --store ./store --k 5 --question "..." --show_sources
+```
+
+## Files
+rag/chunk.py : page-aware chunking with overlap and sentence boundaries
+
+rag/index.py : fit TF-IDF, make dense vectors, write/read FAISS + metadata
+
+rag/search.py : retrieval (cosine via FAISS), MMR reranking
+
+rag/summarize.py : simple extractive summarizer
+
+ingest.py : CLI to build the store
+
+query.py : CLI to query the store
+
+## Store artifacts
+```bash
+store/
+├── faiss.index            # FAISS IndexFlatIP
+├── tfidf.pkl              # fitted TfidfVectorizer (pickle)
+├── meta.jsonl             # metadata per chunk (doc id, page, offsets)
+└── docs.jsonl             # docs catalog (path, page_count, id)
+```
+
+## Scale up
+Use more/larger PDFs: ingestion streams pages; TF-IDF grows vocab.
+
+Use GPU-FAISS: swap to faiss.index_cpu_to_all_gpus(index) (see comments).
+
+Replace TF-IDF with SOTA embeddings (e.g., sentence-transformers)
+by plugging into rag/index.py:embed_texts.
+
+## Testing
+```bash
+pytest -q
+```
+Tests generate small PDFs programmatically (no network).
